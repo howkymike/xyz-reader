@@ -8,8 +8,12 @@
     <string name="action_share">Share</string>
 
     <string name="up">Up</string>
+    <string name="down">Down</string>
     <string name="transition_photo">photo_transition</string>
     <string name="refresh_message">Swipe to refresh a content</string>
+    <string name="dialog_full_content">Do you want to show full content? (It will slow down the device!)</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <!-- The class name to the ScrollingChildBehavior required for AppBarLayout -->
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>

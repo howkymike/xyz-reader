@@ -1,8 +1,13 @@
 package com.example.xyzreader.ui;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.Loader;
 import android.support.v4.app.LoaderManager;
 import android.database.Cursor;
@@ -11,8 +16,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -29,6 +38,7 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     private Cursor mCursor;
     private long mStartId;
+    private boolean mIsFull;
 
     private long mSelectedItemId;
     private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
@@ -38,6 +48,7 @@ public class ArticleDetailActivity extends AppCompatActivity
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
     private View mUpButton;
+    private View mDownButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +65,9 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         getSupportLoaderManager().initLoader(0, null, this);
 
-        mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mIsFull = false;
+
+        mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), mIsFull);
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageMargin((int) TypedValue
@@ -90,6 +103,15 @@ public class ArticleDetailActivity extends AppCompatActivity
             }
         });
 
+        mDownButton = findViewById(R.id.action_down);
+        mDownButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFullContent();
+            }
+        });
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
@@ -110,6 +132,26 @@ public class ArticleDetailActivity extends AppCompatActivity
                 mSelectedItemId = mStartId;
             }
         }
+    }
+
+    public void getFullContent() {
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_full_content)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mPagerAdapter.mIsFull = true;
+                        mPager.getAdapter().notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mPagerAdapter.mIsFull = false;
+                        mPager.getAdapter().notifyDataSetChanged();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
@@ -156,9 +198,14 @@ public class ArticleDetailActivity extends AppCompatActivity
         mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
     }
 
-    private class MyPagerAdapter extends FragmentPagerAdapter {
-        public MyPagerAdapter(FragmentManager fm) {
+
+    private class MyPagerAdapter extends FragmentStatePagerAdapter {
+
+        private boolean mIsFull;
+
+        public MyPagerAdapter(FragmentManager fm, boolean isFull) {
             super(fm);
+            mIsFull = isFull;
         }
 
         @Override
@@ -174,9 +221,15 @@ public class ArticleDetailActivity extends AppCompatActivity
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID), position);
+            Log.d("ArticleDetailActivity", "getItem, position:" + position);
+            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID), position, mIsFull);
         }
 
+        @Override
+        public int getItemPosition(@NonNull Object object) {
+            Log.d("ArticleDetailActivity", "getItemPosition, mIsFull:" + mIsFull);
+            return POSITION_NONE;
+        }
 
         @Override
         public int getCount() {
