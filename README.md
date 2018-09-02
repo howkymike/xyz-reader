@@ -4,7 +4,7 @@ This repository stores the starter code for the XYZ Reader project in Udacity's 
 
 
 ![xyz-reader main](https://github.com/ranforsin/xyz-reader/blob/master/pixel_main_screen.png)
-![xyz-reader main](https://github.com/ranforsin/xyz-reader/blob/master/pixel_detail_screen.png)
+![xyz-reader detail](https://github.com/ranforsin/xyz-reader/blob/master/pixel_detail_screen(resized).png)
 
 
 ## Built With
