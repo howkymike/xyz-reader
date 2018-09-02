@@ -1,4 +1,4 @@
-### XYZ Reader Starter Code
+### XYZ Reader
 
 It takes data from the server and display it in Material Design
 
